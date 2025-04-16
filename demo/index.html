@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #songContainer {
+            margin: 20px;
+        }
+        #artistContainer {
+            margin: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        #lyrics {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        #artist {
+            margin: 10px;
+        }
+        #artist-image {
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chromax API Demo</title>
+</head>
+<body>
+    <h1>Chromax API Demo</h1>
+    <div id="songContainer">
+        <img src='' alt="Album Cover" id="cover" height="200px">
+        <h2 id="title">${song}</h2>
+    </div>
+    <p4 id="lyrics"></p4>
+    <div id="artistContainer">
+        <img src='' alt="Artist Image" id="artist-image" height="50px">
+        <p id="artist">${artist}</p>
+    </div>
+</body>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const artist = params.get('artist');
+    const song = params.get('song');
+    const cover = document.getElementById('cover');
+    const titleElement = document.getElementById('title');
+    const artistElement = document.getElementById('artist');
+    const artistImage = document.getElementById('artist-image');
+    const lyricsElement = document.getElementById('lyrics');
+    const lyricsUrl = `https://chromax-api.onrender.com/lyrics/${artist}/${song}`;
+    const lyrics = fetch(lyricsUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.lyrics) {
+                lyricsElement.innerText = data.lyrics;
+            } else {
+                lyricsElement.innerText = "Lyrics not found.";
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching lyrics:', error);
+            lyricsElement.innerText = "Error fetching lyrics.";
+        });
+    cover.src = `https://chromax-api.onrender.com/cover/${artist}/${song}`;
+    artistImage.src = `https://chromax-api.onrender.com/image/${artist}`;
+    titleElement.innerText = song;
+    artistElement.innerText = artist;
+</script>
+</html>
