@@ -1,13 +1,16 @@
 const express = require('express');
 const apiFunctions = require('./mess'); // Import your API logic
-const cors = require('cors');
 const app = express();
-
-// Enable CORS for all origins
-app.use(cors());
 const userAgent = 'chromax-api/1.0 (rilwag2612@gmail.com)';
 const port = process.env.PORT || 8390;
 
+// MARK: CORS
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
 // MARK: Lyrics API
 app.get('/lyrics/:param1/:param2', async (req, res) => {
     const artist = req.params.param1;
