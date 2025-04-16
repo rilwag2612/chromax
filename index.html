@@ -58,6 +58,10 @@
         document.querySelector('body').innerHTML += `<input placeholder="Artist" id="artistSelector"></input>`;
         document.querySelector('body').innerHTML += `<input placeholder="Song" id="songSelector"></input>`;
         document.querySelector('body').innerHTML += `<button onclick=redirect()>Go</button>`;
+        document.querySelector('body').innerHTML += `<br><br><br><br>`;
+        document.querySelector('body').innerHTML += `<p>Chromax API may go down for hours at a time. If so, any pages using the API will not function as intended, unless a backup API is used.</p>`;
+        document.querySelector('body').innerHTML += `<p>Music playback coming soon! Other URLs: https://chromax-music.web.app    https://riley-code5.github.io/chromax</p>`;
+        
     } else {
         const lyricsUrl = `https://chromax-api.onrender.com/lyrics/${artist}/${song}`;
         const lyrics = fetch(lyricsUrl)
