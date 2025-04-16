@@ -33,7 +33,6 @@
     <title>Chromax API Demo</title>
 </head>
 <body>
-    <p>Instructions: Add artist and song params to the URL. Eg. riley-code5.github.io/chromax?artist=AJR&song=Bang!</p>
     <h1>Chromax API Demo</h1>
     <div id="songContainer">
         <img src='' alt="Album Cover" id="cover" height="200px">
@@ -54,8 +53,14 @@
     const artistElement = document.getElementById('artist');
     const artistImage = document.getElementById('artist-image');
     const lyricsElement = document.getElementById('lyrics');
-    const lyricsUrl = `https://chromax-api.onrender.com/lyrics/${artist}/${song}`;
-    const lyrics = fetch(lyricsUrl)
+    if (artist == null || song == null) {
+        document.querySelector('body').innerHTML = "<h1>Chromax API Demo</h1><p>Use the below inputs to select a song.</p>";
+        document.querySelector('body').innerHTML += `<input placeholder="Artist" id="artistSelector"></input>`;
+        document.querySelector('body').innerHTML += `<input placeholder="Song" id="songSelector"></input>`;
+        document.querySelector('body').innerHTML += `<button onclick=redirect()>Go</button>`;
+    } else {
+        const lyricsUrl = `https://chromax-api.onrender.com/lyrics/${artist}/${song}`;
+        const lyrics = fetch(lyricsUrl)
         .then(response => response.json())
         .then(data => {
             if (data.lyrics) {
@@ -68,9 +73,19 @@
             console.error('Error fetching lyrics:', error);
             lyricsElement.innerText = "Error fetching lyrics.";
         });
-    cover.src = `https://chromax-api.onrender.com/cover/${artist}/${song}`;
-    artistImage.src = `https://chromax-api.onrender.com/image/${artist}`;
-    titleElement.innerText = song;
-    artistElement.innerText = artist;
+        cover.src = `https://chromax-api.onrender.com/cover/${artist}/${song}`;
+        artistImage.src = `https://chromax-api.onrender.com/image/${artist}`;
+        titleElement.innerText = song;
+        artistElement.innerText = artist;
+    }
+    const redirect = () => {
+        const artist = document.getElementById('artistSelector').value;
+        const song = document.getElementById('songSelector').value;
+        if (artist && song) {
+            window.location.href = `index.html?artist=${encodeURIComponent(artist)}&song=${encodeURIComponent(song)}`;
+        } else {
+            alert("Please enter both artist and song.");
+        }
+    };
 </script>
 </html>
