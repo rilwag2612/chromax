@@ -1,5 +1,5 @@
 const express = require('express');
-const apiFunctions = require('./functions/mess'); // Import your API logic
+const apiFunctions = require('./mess'); // Import your API logic
 const app = express();
 const userAgent = 'chromax-api/1.0 (rilwag2612@gmail.com)';
 const port = process.env.PORT || 8390;
