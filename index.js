@@ -1,4 +1,3 @@
-const functions = require('firebase-functions');
 const express = require('express');
 const apiFunctions = require('./functions/mess'); // Import your API logic
 const app = express();
@@ -87,6 +86,3 @@ app.use((req, res) => {
 app.listen(port, () => {
     console.log(`Chromax API is running on port ${port}`);
 });
-
-// Export the Express app as a Firebase function
-exports.api = functions.https.onRequest(app);
