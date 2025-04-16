@@ -1,6 +1,10 @@
 const express = require('express');
 const apiFunctions = require('./mess'); // Import your API logic
+const cors = require('cors');
 const app = express();
+
+// Enable CORS for all origins
+app.use(cors());
 const userAgent = 'chromax-api/1.0 (rilwag2612@gmail.com)';
 const port = process.env.PORT || 8390;
 
