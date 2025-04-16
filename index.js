@@ -3,7 +3,7 @@ const express = require('express');
 const apiFunctions = require('./functions/mess'); // Import your API logic
 const app = express();
 const userAgent = 'chromax-api/1.0 (rilwag2612@gmail.com)';
-const port = 8390;
+const port = process.env.PORT || 8390;
 
 // MARK: Lyrics API
 app.get('/lyrics/:param1/:param2', async (req, res) => {
@@ -85,7 +85,7 @@ app.use((req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Chromax is listening on port ${port}`);
+    console.log(`Chromax API is running on port ${port}`);
 });
 
 // Export the Express app as a Firebase function
