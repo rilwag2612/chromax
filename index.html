@@ -53,17 +53,23 @@
     const artistElement = document.getElementById('artist');
     const artistImage = document.getElementById('artist-image');
     const lyricsElement = document.getElementById('lyrics');
+    const lyricsType = params.get('lyrics');
     if (artist == null || song == null) {
-        document.querySelector('body').innerHTML = "<h1>Chromax API Demo</h1><p>Use the below inputs to select a song.</p>";
-        document.querySelector('body').innerHTML += `<input placeholder="Artist" id="artistSelector"></input>`;
+        document.querySelector('body').innerHTML = "<h1>Chromax API Demo</h1><p>Use the below inputs to select a song.</p><br><br><br><br>";
+        document.querySelector('body').innerHTML += `<input placeholder="Search" id="searchSelector"></input>`;
+        document.querySelector('body').innerHTML += `<button onclick=redirectSearch()>Search</button><br>`;
+        document.querySelector('body').innerHTML += `<div class="searchResultsDiv"></div><br>`;
+        document.querySelector('body').innerHTML += `<label for="lyricsType">Lyrics: </label><select name="lyricsType" id="lyricsType"><option value="ovh">lyrics.ovh API</option><option value="genius">Genius API</option></select><br>`;
+        document.querySelector('body').innerHTML += `<br><br><input placeholder="Artist" id="artistSelector"></input>`;
         document.querySelector('body').innerHTML += `<input placeholder="Song" id="songSelector"></input>`;
         document.querySelector('body').innerHTML += `<button onclick=redirect()>Go</button>`;
         document.querySelector('body').innerHTML += `<br><br><br><br>`;
         document.querySelector('body').innerHTML += `<p>Chromax API may go down for hours at a time. If so, any pages using the API will not function as intended, unless a backup API is used.</p>`;
         document.querySelector('body').innerHTML += `<p>Music playback coming soon! Other URLs: https://chromax-music.web.app    https://riley-code5.github.io/chromax</p>`;
+        document.querySelector('body').innerHTML += `<button>Developer Docs</button>`;
         
     } else {
-        const lyricsUrl = `https://chromax-api.onrender.com/lyrics/${artist}/${song}`;
+        const lyricsUrl = `https://chromax-api.onrender.com/lyrics/${lyricsType}/${artist}/${song}`;
         const lyrics = fetch(lyricsUrl)
         .then(response => response.json())
         .then(data => {
@@ -86,10 +92,27 @@
         const artist = document.getElementById('artistSelector').value;
         const song = document.getElementById('songSelector').value;
         if (artist && song) {
-            window.location.href = `index.html?artist=${encodeURIComponent(artist)}&song=${encodeURIComponent(song)}`;
+            window.location.href = `index.html?artist=${encodeURIComponent(artist)}&song=${encodeURIComponent(song)}&lyrics=${encodeURIComponent(document.getElementById('lyricsType').value)}`;
         } else {
             alert("Please enter both artist and song.");
         }
     };
+    const search = document.getElementById('searchSelector').value;
+    while (search) {
+        fetch(`https://chromax-api.onrender.com/search?q=${encodeURIComponent(search)}&type=`)
+        .then(response => response.json())
+        .then(data => {
+            const searchResultsDiv = document.querySelector('.searchResultsDiv');
+            searchResultsDiv.innerHTML = '';
+            data.forEach(item => {
+                const resultItem = document.createElement('div');
+                resultItem.innerText = `${item.artist} - ${item.song}`;
+                resultItem.onclick = () => {
+                    window.location.href = `index.html?artist=${encodeURIComponent(item.artist)}&song=${encodeURIComponent(item.song)}&lyrics=${encodeURIComponent(document.getElementById('lyricsType').value)}`;
+                };
+                searchResultsDiv.appendChild(resultItem);
+            });
+        })
+    }
 </script>
 </html>
