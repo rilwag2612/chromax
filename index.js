@@ -3,9 +3,21 @@ const apiFunctions = require('./mess'); // Import your API logic
 const app = express();
 const userAgent = 'chromax-api/1.0 (rilwag2612@gmail.com)';
 const port = process.env.PORT || 8390;
+const Genius = require("genius-lyrics");
+const Client = new Genius.Client("top-secret-optional-key"); // Scrapes if no key is provided
+
+
+// MARK: CORS
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    next();
+  });
+
 
 // MARK: Lyrics API
-app.get('/lyrics/:param1/:param2', async (req, res) => {
+app.get('/lyrics/ovh/:param1/:param2', async (req, res) => {
     const artist = req.params.param1;
     const song = req.params.param2;
 
@@ -14,6 +26,23 @@ app.get('/lyrics/:param1/:param2', async (req, res) => {
         const data = await response.json();
         if (data.lyrics) {
             res.json({ lyrics: data.lyrics });
+        } else {
+            res.status(404).json({ error: 'Lyrics not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching lyrics:', error);
+        res.status(500).json({ error: 'Failed to fetch lyrics' });
+    }
+});
+
+app.get('/lyrics/genius/:param1', async (req, res) => {
+    const song = req.params.param1;
+
+    try {
+        const songInfo = await Client.songs.search(song);
+        if (songInfo.length > 0) {
+            const lyrics = await songInfo[0].lyrics();
+            res.json({ lyrics });
         } else {
             res.status(404).json({ error: 'Lyrics not found' });
         }
