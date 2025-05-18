@@ -104,7 +104,38 @@ app.get('/artist/:id/top-tracks', (req, res) => {
 
 // MARK: Home
 app.get('/', (req, res) => {
-    res.send('Welcome to the Chromax API. Visit the developer docs to get started.');
+    res.send(`<style>
+    * {
+        background-color: gray;
+    }
+    .icon {
+        width: 300;
+        display: block;
+        margin: auto;
+        margin-top: 50px;
+        margin-bottom: 10px;
+        background-color: black;
+        border-radius: 30%;
+        padding: 12px;
+    }
+    .contentContainer {
+        color: white;
+        padding: 12px;
+        text-align: center;
+    }
+    .learn_btn {
+        border-radius: 20%;
+        padding: 20px;
+        background: lightblue;
+    }
+</style>
+
+<img src="https://render.com/icon.svg" class="icon">
+<div class="contentContainer">
+    <h1>Chromax</h1>
+    <p>Unlock a world of new wonders by using the Chromax Music API. Learn more using the devleoper documentation.</p>
+    <button class="learn_btn" onclick='window.location.href="https://chromax-api.onrender.com"'>Learn Chromax</button>
+</div>`);
 });
 
 // Catch-all middleware for 404 errors
