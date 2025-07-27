@@ -4,7 +4,7 @@ const [promisify] = require('util')
 const streamPipeline = promisify(pipeline);
 
 // Fetch album cover
-async function fetchAlbumCover(artist, album, userAgent, res) {
+export async function fetchAlbumCover(artist, album, userAgent, res) {
     const musicbrainzUrl = `https://musicbrainz.org/ws/2/release/?query=album:"${album}" AND artist:"${artist}"&fmt=json`;
     const headers = { 'User-Agent': userAgent };
 
@@ -50,7 +50,7 @@ async function fetchAlbumCover(artist, album, userAgent, res) {
 }
 
 // Fetch artist image
-async function fetchArtistImage(artist, res) {
+export async function fetchArtistImage(artist, res) {
     const deezerUrl = `https://api.deezer.com/search/artist?q=${encodeURIComponent(artist)}`;
 
     console.log("Fetching Artist from Deezer:", deezerUrl);
@@ -87,7 +87,7 @@ async function fetchArtistImage(artist, res) {
 }
 
 // Search for artists, albums, or tracks
-async function search(query, type, res) {
+export async function search(query, type, res) {
     const deezerUrl = `https://api.deezer.com/search/${type}?q=${encodeURIComponent(query)}`;
 
     console.log("Searching on Deezer:", deezerUrl);
@@ -110,7 +110,7 @@ async function search(query, type, res) {
 }
 
 // Fetch top tracks for an artist
-async function fetchTopTracks(artistId, res) {
+export async function fetchTopTracks(artistId, res) {
     const deezerUrl = `https://api.deezer.com/artist/${artistId}/top?limit=10`;
 
     console.log("Fetching Top Tracks from Deezer:", deezerUrl);
@@ -131,5 +131,3 @@ async function fetchTopTracks(artistId, res) {
         res.status(500).send("Error fetching top tracks");
     }
 }
-
-export { fetchAlbumCover, fetchArtistImage, search, fetchTopTracks };
