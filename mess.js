@@ -1,10 +1,14 @@
-const [pipeline] = require('stream')
-const [promisify] = require('util')
+// utils.js (CommonJS)
+
+const { pipeline } = require('stream'); // Correct way to destructure from require
+const { promisify } = require('util');
 
 const streamPipeline = promisify(pipeline);
 
-// Fetch album cover
-export async function fetchAlbumCover(artist, album, userAgent, res) {
+// Your external API functions
+// ---
+
+async function fetchAlbumCover(artist, album, userAgent, res) { // Keep res for now, but we'll discuss
     const musicbrainzUrl = `https://musicbrainz.org/ws/2/release/?query=album:"${album}" AND artist:"${artist}"&fmt=json`;
     const headers = { 'User-Agent': userAgent };
 
@@ -31,7 +35,10 @@ export async function fetchAlbumCover(artist, album, userAgent, res) {
 
                 if (coverResponse.ok) {
                     res.setHeader('Content-Type', 'image/jpeg');
+                    // Ensure the 'res' object is properly a Writable stream for streamPipeline
+                    // This is usually true for Express response objects
                     await streamPipeline(coverResponse.body, res);
+                    // Crucial: Do NOT send anything else after streaming!
                 } else {
                     console.error("Error fetching cover art:", coverResponse.status, coverResponse.statusText);
                     res.status(404).send("Cover art not found");
@@ -49,8 +56,7 @@ export async function fetchAlbumCover(artist, album, userAgent, res) {
     }
 }
 
-// Fetch artist image
-export async function fetchArtistImage(artist, res) {
+async function fetchArtistImage(artist, res) {
     const deezerUrl = `https://api.deezer.com/search/artist?q=${encodeURIComponent(artist)}`;
 
     console.log("Fetching Artist from Deezer:", deezerUrl);
@@ -71,7 +77,7 @@ export async function fetchArtistImage(artist, res) {
             const artistImageUrl = artistData.picture_xl;
 
             if (artistImageUrl) {
-                res.redirect(artistImageUrl);
+                res.redirect(artistImageUrl); // Redirecting is fine here
             } else {
                 console.error("No artist image found on Deezer");
                 res.status(404).send("Artist image not found");
@@ -86,8 +92,7 @@ export async function fetchArtistImage(artist, res) {
     }
 }
 
-// Search for artists, albums, or tracks
-export async function search(query, type, res) {
+async function search(query, type, res) {
     const deezerUrl = `https://api.deezer.com/search/${type}?q=${encodeURIComponent(query)}`;
 
     console.log("Searching on Deezer:", deezerUrl);
@@ -109,8 +114,7 @@ export async function search(query, type, res) {
     }
 }
 
-// Fetch top tracks for an artist
-export async function fetchTopTracks(artistId, res) {
+async function fetchTopTracks(artistId, res) {
     const deezerUrl = `https://api.deezer.com/artist/${artistId}/top?limit=10`;
 
     console.log("Fetching Top Tracks from Deezer:", deezerUrl);
@@ -131,3 +135,11 @@ export async function fetchTopTracks(artistId, res) {
         res.status(500).send("Error fetching top tracks");
     }
 }
+
+// Export all functions
+module.exports = {
+    fetchAlbumCover,
+    fetchArtistImage,
+    search,
+    fetchTopTracks
+};
