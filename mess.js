@@ -1,5 +1,5 @@
-import { pipeline } from 'stream';
-import { promisify } from 'util';
+const [pipeline] = require('stream')
+const [promisify] = require('util')
 
 const streamPipeline = promisify(pipeline);
 
