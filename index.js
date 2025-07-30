@@ -52,6 +52,41 @@ app.get('/lyrics/genius/:param1', async (req, res) => {
     }
 });
 
+//MARK: Synced Lyrics API
+app.get('/lyrics/lrclib/:artist/:song', async (req, res) => {
+    const artist = req.params.artist;
+    const song = req.params.song;
+
+    try {
+        // Construct the LRCLIB search URL
+        // It's good practice to encode URI components for special characters in artist/song names
+        const lrclibSearchUrl = `https://lrclib.net/api/search?track_name=${encodeURIComponent(song)}&artist_name=${encodeURIComponent(artist)}`;
+
+        const response = await fetch(lrclibSearchUrl);
+        const data = await response.json(); // This will be an array of lyric records
+
+        // LRCLIB's API returns an array of potential matches.
+        // We'll return the raw array. Your frontend will then need to:
+        // 1. Iterate through the array to find the best match (e.g., by track name, artist, duration).
+        // 2. Check if the 'syncedLyrics' property exists for that match.
+        // 3. Parse the 'syncedLyrics' string (which is in LRC format) into an array of objects
+        //    with timestamps and text, as discussed in the React Native section.
+
+        if (Array.isArray(data) && data.length > 0) {
+            // Return the entire array of matches.
+            // The frontend can then choose the most appropriate one.
+            res.json(data);
+        } else {
+            // No results found for the given artist/song
+            res.status(404).json({ error: 'Lyrics not found on LRCLIB for this song/artist.' });
+        }
+    } catch (error) {
+        console.error('Error fetching lyrics from LRCLIB:', error);
+        res.status(500).json({ error: 'Failed to fetch lyrics from LRCLIB.', details: error.message });
+    }
+});
+
+
 // MARK: Cover Art API
 app.get('/cover/:artist/:album', (req, res) => {
     const artist = req.params.artist;
