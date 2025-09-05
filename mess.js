@@ -92,54 +92,63 @@ async function fetchArtistImage(artist, res) {
     }
 }
 
-async function search(query, type, res) {
-    const deezerUrl = `https://api.deezer.com/search/${type}?q=${encodeURIComponent(query)}`;
 
-    console.log("Searching on Deezer:", deezerUrl);
+async function getMbid(artist, album, userAgent) {
+  const musicbrainzUrl = `https://musicbrainz.org/ws/2/release/?query=album:"${album}" AND artist:"${artist}"&fmt=json`;
+  const headers = { 'User-Agent': userAgent };
 
-    try {
-        const deezerResponse = await fetch(deezerUrl);
+  try {
+    const mbResponse = await fetch(musicbrainzUrl, { headers });
+    if (!mbResponse.ok) return null;
 
-        if (!deezerResponse.ok) {
-            console.error(`Error searching on Deezer: ${deezerResponse.status} ${deezerResponse.statusText}`);
-            res.status(500).send("Error searching data");
-            return;
-        }
-
-        const deezerData = await deezerResponse.json();
-        res.json(deezerData.data);
-    } catch (error) {
-        console.error("Error searching on Deezer:", error);
-        res.status(500).send("Error searching data");
+    const mbData = await mbResponse.json();
+    if (mbData.releases && mbData.releases.length > 0) {
+      return mbData.releases[0].id;
     }
+    return null;
+  } catch (err) {
+    console.error('Error fetching MBID:', err);
+    return null;
+  }
 }
 
-async function fetchTopTracks(artistId, res) {
-    const deezerUrl = `https://api.deezer.com/artist/${artistId}/top?limit=10`;
+/**
+ * Fetches the track name given artist, album, and optional track number
+ * @param {string} artist
+ * @param {string} album
+ * @param {string|number} trackNumber - optional, 1-based
+ * @param {string} userAgent
+ * @returns {Promise<string|null>}
+ */
+async function getTrackName(artist, album, trackNumber = 1, userAgent) {
+  const releaseMbid = await getMbid(artist, album, userAgent);
+  if (!releaseMbid) return null;
 
-    console.log("Fetching Top Tracks from Deezer:", deezerUrl);
+  const releaseUrl = `https://musicbrainz.org/ws/2/release/${releaseMbid}?inc=recordings&fmt=json`;
+  const headers = { 'User-Agent': userAgent };
 
-    try {
-        const deezerResponse = await fetch(deezerUrl);
+  try {
+    const releaseResp = await fetch(releaseUrl, { headers });
+    if (!releaseResp.ok) return null;
 
-        if (!deezerResponse.ok) {
-            console.error(`Error fetching top tracks from Deezer: ${deezerResponse.status} ${deezerResponse.statusText}`);
-            res.status(500).send("Error fetching top tracks");
-            return;
-        }
+    const releaseData = await releaseResp.json();
 
-        const deezerData = await deezerResponse.json();
-        res.json(deezerData.data);
-    } catch (error) {
-        console.error("Error fetching top tracks from Deezer:", error);
-        res.status(500).send("Error fetching top tracks");
-    }
+    // MusicBrainz can have multiple mediums (CDs/Discs), we just take the first one
+    const medium = releaseData.media?.[0];
+    if (!medium || !medium.tracks || medium.tracks.length === 0) return null;
+
+    // Track number is 1-based, arrays are 0-based
+    const trackIndex = Math.min(trackNumber - 1, medium.tracks.length - 1);
+    const track = medium.tracks[trackIndex];
+    return track ? track.title : null;
+  } catch (err) {
+    console.error('Error fetching track name:', err);
+    return null;
+  }
 }
 
-// Export all functions
-module.exports = {
+    module.exports = {
     fetchAlbumCover,
     fetchArtistImage,
-    search,
-    fetchTopTracks
-};
+    getTrackName
+    };
